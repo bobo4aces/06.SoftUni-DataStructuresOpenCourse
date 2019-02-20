@@ -12,7 +12,9 @@ namespace ShoppingCenter
         public static void Main()
         {
             int count = int.Parse(Console.ReadLine());
-            OrderedBag<Product> products = new OrderedBag<Product>();
+
+            ShoppingCenter shoppingCenter = new ShoppingCenter();
+
             while (count > 0)
             {
                 string[] tokens = Console.ReadLine().Split(';').ToArray();
@@ -27,8 +29,7 @@ namespace ShoppingCenter
                         name = tokens[0];
                         price = double.Parse(tokens[1]);
                         producer = tokens[2];
-                        Product product = new Product(name, price, producer);
-                        AddProduct(products, product);
+                        shoppingCenter.AddProduct(name, price, producer);
                         Console.WriteLine("Product added");
                         break;
                     case "DeleteProducts":
@@ -38,12 +39,12 @@ namespace ShoppingCenter
                         {
                             name = tokens[0];
                             producer = tokens[1];
-                            deletedProductsCount = DeleteProduct(products, name, producer);
+                            deletedProductsCount = shoppingCenter.DeleteByNameAndProducer(name, producer);
                         }
                         else
                         {
                             producer = tokens[0];
-                            deletedProductsCount = DeleteProduct(products, producer);
+                            deletedProductsCount = shoppingCenter.DeleteByProducer(producer);
                         }
                         if (deletedProductsCount > 0)
                         {
@@ -56,80 +57,23 @@ namespace ShoppingCenter
                         break;
                     case "FindProductsByName":
                         name = tokens[0];
-                        IEnumerable<Product> currentProducts = FindProductsByName(products, name);
-                        PrintProducts(currentProducts);
+                        shoppingCenter.PrintProducts(shoppingCenter?.FindByName(name));
                         break;
                     case "FindProductsByProducer":
                         producer = tokens[0];
-                        currentProducts = FindProductsByProducer(products, producer);
-                        PrintProducts(currentProducts);
+                        shoppingCenter.PrintProducts(shoppingCenter?.FindByProducer(producer));
                         break;
                     case "FindProductsByPriceRange":
                         double[] prices = tokens.Select(double.Parse).ToArray();
                         double fromPrice = prices[0];
                         double toPrice = prices[1];
-                        currentProducts = FindProductsByPriceRange(products, fromPrice, toPrice);
-                        PrintProducts(currentProducts);
+                        shoppingCenter.PrintProducts(shoppingCenter?.FindByPrice(fromPrice, toPrice));
                         break;
                 }
                 count--;
             }
 
 
-        }
-
-        private static void PrintProducts(IEnumerable<Product> currentProducts)
-        {
-            if (currentProducts.Count() == 0)
-            {
-                Console.WriteLine("No products found");
-            }
-            else
-            {
-                foreach (var currentProduct in currentProducts)
-                {
-                    Console.WriteLine(
-                        $"{{{currentProduct.Name};{currentProduct.Producer};{currentProduct.Price.ToString("0.00")}}}");
-                }
-            }
-        }
-
-        private static void AddProduct(OrderedBag<Product> products, Product product)
-        {
-            products.Add(product);
-            //products.OrderBy(p => p.Name).ThenBy(p => p.Producer).ThenBy(p => p.Price);
-        }
-
-        private static int DeleteProduct(OrderedBag<Product> products, string producer)
-        {
-            int productsCount = products
-                                .Where(p => p.Producer == producer)
-                                .Count();
-            products.RemoveAll(p => p.Producer == producer);
-            return productsCount;
-        }
-        private static int DeleteProduct(OrderedBag<Product> products, string name, string producer)
-        {
-            int productsCount = products
-                                .Where(p => p.Name == name && p.Producer == producer)
-                                .Count();
-            products.RemoveAll(p => p.Name == name && p.Producer == producer);
-            return productsCount;
-        }
-
-        private static IEnumerable<Product> FindProductsByName(OrderedBag<Product> products, string name)
-        {
-            return products.FindAll(p => p.Name == name);
-        }
-
-        private static IEnumerable<Product> FindProductsByProducer(OrderedBag<Product> products, string producer)
-        {
-            return products.FindAll(p => p.Producer == producer);
-        }
-
-        private static IEnumerable<Product> FindProductsByPriceRange(OrderedBag<Product> products, double fromPrice, double toPrice)
-        {
-            return products.FindAll(p => p.Price >= fromPrice && p.Price <= toPrice);
         }
     }
 }

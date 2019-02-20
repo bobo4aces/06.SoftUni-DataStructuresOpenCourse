@@ -34,5 +34,10 @@ namespace ShoppingCenter
             }
             return result;
         }
+
+        public override string ToString()
+        {
+            return $"{{{this.Name};{this.Producer};{this.Price.ToString("F2")}}}";
+        }
     }
 }
